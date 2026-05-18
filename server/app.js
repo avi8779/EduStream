@@ -16,17 +16,17 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORS — FIXED
-app.options('*', cors());         
-app.use(
-  cors({
-    origin: [
-      'https://edu-stream-cyan.vercel.app',  
-      process.env.FRONTEND_URL,             
-    ],
-    credentials: true,
-  })
-);
+
+const corsOptions = {
+  origin: [
+    'https://edu-stream-cyan.vercel.app',
+    process.env.FRONTEND_URL,
+  ],
+  credentials: true,
+};
+
+app.options('*', cors(corsOptions));  
+app.use(cors(corsOptions));          
 
 app.use(morgan('dev'));
 app.use(cookieParser());
