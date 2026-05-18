@@ -117,6 +117,10 @@ export const getLecturesByCourseId = asyncHandler(async (req, res, next) => {
  * @ACCESS Private (Admin Only)
  */
 export const addLectureToCourseById = asyncHandler(async (req, res, next) => {
+  console.log('=== ADD LECTURE STARTED ===');
+  console.log('req.file:', req.file);
+  console.log('req.body:', req.body);
+
   const { title, description } = req.body;
   const { id } = req.params;
 
@@ -132,31 +136,33 @@ export const addLectureToCourseById = asyncHandler(async (req, res, next) => {
     return next(new AppError('Invalid course id or course not found.', 400));
   }
 
-  // Run only if user sends a file
   if (req.file) {
+    console.log('File received:', req.file.path);
     try {
+      console.log('Uploading to Cloudinary...');
       const result = await cloudinary.v2.uploader.upload(req.file.path, {
-        folder: 'lms', // Save files in a folder named lms
-        chunk_size: 50000000, // 50 mb size
+        folder: 'lms',
+        chunk_size: 50000000,
         resource_type: 'video',
       });
 
-      // If success
+      console.log('Cloudinary result:', result);
+
       if (result) {
-        // Set the public_id and secure_url in array
         lectureData.public_id = result.public_id;
         lectureData.secure_url = result.secure_url;
+        console.log('lectureData set:', lectureData);
       }
 
-      // After successful upload remove the file from local storage
-      fs.rm(`uploads/${req.file.filename}`);
+      await fs.rm(`uploads/${req.file.filename}`);
+
     } catch (error) {
-      // Empty the uploads directory without deleting the uploads directory
+      console.log('=== CLOUDINARY ERROR ===');
+      console.log(JSON.stringify(error));
+
       for (const file of await fs.readdir('uploads/')) {
         await fs.unlink(path.join('uploads/', file));
       }
-
-      // Send the error message
       return next(
         new AppError(
           JSON.stringify(error) || 'File not uploaded, please try again',
@@ -164,6 +170,15 @@ export const addLectureToCourseById = asyncHandler(async (req, res, next) => {
         )
       );
     }
+  } else {
+    console.log('NO FILE RECEIVED — req.file is undefined');
+    return next(new AppError('Lecture video is required', 400));
+  }
+
+  // Guard before saving
+  if (!lectureData.public_id || !lectureData.secure_url) {
+    console.log('lectureData is empty — Cloudinary did not return data');
+    return next(new AppError('Video upload failed, please try again', 400));
   }
 
   course.lectures.push({
@@ -173,8 +188,6 @@ export const addLectureToCourseById = asyncHandler(async (req, res, next) => {
   });
 
   course.numberOfLectures = course.lectures.length;
-
-  // Save the course object
   await course.save();
 
   res.status(200).json({
