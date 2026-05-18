@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { getUserData } from "./Redux/authSlice";
 import About from "./Pages/About";
 import Contact from "./Pages/Contact";
 import CourseList from "./Pages/Course/CourseList";
@@ -25,6 +27,12 @@ import NotRequireAuth from "./Components/Auth/NotRequireAuth";
 import Denied from "./Pages/Denied";
 
 const App = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getUserData());
+  }, []);
+
   return (
     <>
       <Routes>
