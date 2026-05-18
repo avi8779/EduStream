@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Layout from "../../Layout/Layout";
 import { BiRupee } from "react-icons/bi";
 import { useDispatch, useSelector } from "react-redux";
+import { getUserData } from "../../Redux/authSlice";
 import {
   getRazorPayId,
   purchaseCourseBundle,
@@ -56,6 +57,8 @@ const Checkout = () => {
         try {
           const res = await dispatch(verifyUserPayment(response)).unwrap();
           if (res.success) {
+            await dispatch(getUserData());
+            toast.success("Payment verified successfully!");
             navigate("/checkout/success");
           } else {
             throw new Error(res.message || "Payment verification failed.");
@@ -80,12 +83,16 @@ const Checkout = () => {
     paymentObject.open();
   };
 
-  useEffect(() => {
+   useEffect(() => {
     const fetchRazorpayData = async () => {
       try {
-        await dispatch(getRazorPayId()).unwrap();
-        await dispatch(purchaseCourseBundle()).unwrap();
+        const keyResult = await dispatch(getRazorPayId()).unwrap();
+        console.log('Razorpay key loaded:', keyResult); // ← debug log
+      
+        const subResult = await dispatch(purchaseCourseBundle()).unwrap();
+        console.log('Subscription created:', subResult); // ← debug log
       } catch (error) {
+        console.error('Payment setup error:', error); // ← check this in console
         toast.error(error.message || "Failed to load payment data.");
       }
     };
