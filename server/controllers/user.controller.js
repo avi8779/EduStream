@@ -8,9 +8,11 @@ import AppError from '../utils/appError.js';
 import User from '../models/user.model.js';
 import sendEmail from '../utils/sendEmail.js';
 
+
 const cookieOptions = {
   secure: process.env.NODE_ENV === 'production' ? true : false,
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax', 
+  maxAge: 7 * 24 * 60 * 60 * 1000,
   httpOnly: true,
 };
 
@@ -151,10 +153,11 @@ export const loginUser = asyncHandler(async (req, res, next) => {
 export const logoutUser = asyncHandler(async (_req, res, _next) => {
   // Setting the cookie value to null
   res.cookie('token', null, {
-    secure: process.env.NODE_ENV === 'production' ? true : false,
-    maxAge: 0,
-    httpOnly: true,
-  });
+  secure: process.env.NODE_ENV === 'production' ? true : false,
+  sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+  maxAge: 0,
+  httpOnly: true,
+});
 
   // Sending the response
   res.status(200).json({
