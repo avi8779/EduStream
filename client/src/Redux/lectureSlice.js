@@ -12,13 +12,11 @@ export const getCourseLecture = createAsyncThunk(
   async (courseId) => {
     try {
       const res = axiosInstance.get(`/courses/${courseId}`);
-
       toast.promise(res, {
         loading: "Fetching the lectures...",
         success: "Lectures fetched successfully",
-        error: "Failed to fetch lectures",
+        error: (err) => err?.response?.data?.message || "Failed to fetch lectures",
       });
-
       const response = await res;
       return response.data;
     } catch (error) {
@@ -29,27 +27,28 @@ export const getCourseLecture = createAsyncThunk(
 
 // function to add new lecture to the course
 export const addCourseLecture = createAsyncThunk(
-  "/course/lecture/add",
-  async (data) => {
-    const formData = new FormData();
-    formData.append("lecture", data.lecture);
-    formData.append("title", data.title);
-    formData.append("description", data.description);
-
+  "/course/addLecture",
+  async (data, { rejectWithValue }) => {
     try {
+      const formData = new FormData();
+      formData.append('title', data.title);
+      formData.append('description', data.description);
+      formData.append('lecture', data.lecture);
+
+      // ✅ No headers — axios sets multipart/form-data with boundary automatically
       const res = axiosInstance.post(`/courses/${data.id}`, formData);
 
       toast.promise(res, {
-        loading: "Adding the lecture...",
-        success: "Lecture added successfully",
-        error: "Failed to add lecture",
+        loading: 'Adding lecture...',
+        success: (data) => data?.data?.message,
+        error: (err) => err?.response?.data?.message || 'Failed to add lecture',
       });
 
       const response = await res;
-
       return response.data;
     } catch (error) {
-      toast.error(error?.response?.data?.message);
+      toast.error(error?.response?.data?.message || 'Failed to add lecture');
+      return rejectWithValue(error?.response?.data);
     }
   }
 );
@@ -58,18 +57,15 @@ export const addCourseLecture = createAsyncThunk(
 export const deleteCourseLecture = createAsyncThunk(
   "/course/lecture/delete",
   async (data) => {
-    console.log(data);
     try {
       const res = axiosInstance.delete(
         `/courses/?courseId=${data.courseId}&lectureId=${data.lectureId}`
       );
-
       toast.promise(res, {
         loading: "Deleting the lecture...",
         success: "Lecture deleted successfully",
-        error: "Failed to delete lecture",
+        error: (err) => err?.response?.data?.message || "Failed to delete lecture",
       });
-
       const response = await res;
       return response.data;
     } catch (error) {
@@ -78,7 +74,7 @@ export const deleteCourseLecture = createAsyncThunk(
   }
 );
 
-// New function to mark a lecture as watched
+// function to mark a lecture as watched
 export const markLectureAsWatched = createAsyncThunk(
   "/course/lecture/mark-watched",
   async (data) => {
@@ -87,9 +83,8 @@ export const markLectureAsWatched = createAsyncThunk(
       toast.promise(res, {
         loading: "Marking lecture as watched...",
         success: "Lecture marked as watched",
-        error: "Failed to mark lecture as watched",
+        error: (err) => err?.response?.data?.message || "Failed to mark lecture as watched",
       });
-
       const response = await res;
       return response.data;
     } catch (error) {
