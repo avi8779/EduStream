@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "https://edustream-3rd7.onrender.com/api/v1";
+const BASE_URL = process.env.REACT_APP_BASE_URL;
 
 const axiosInstance = axios.create();
 
