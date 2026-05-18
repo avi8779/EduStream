@@ -8,10 +8,8 @@ A production-ready **Learning Management System** built with the **MERN Stack**,
 
 | Service | URL |
 |---|---|
-| 🌐 Frontend | [https://e-learning-avinash.vercel.app](https://e-learning-avinash.vercel.app) |
-| ⚙️ Backend API | [https://lms-api-avinash.onrender.com](https://lms-api-avinash.onrender.com) |
-
-> ⚠️ Replace the above links with your actual deployed URLs after deployment.
+| 🌐 Frontend | [https://e-learning-avinash.vercel.app](https://edu-stream-cyan.vercel.app/) |
+| ⚙️ Backend API | [https://lms-api-avinash.onrender.com](https://edustream-3rd7.onrender.com/) |
 
 ---
 
